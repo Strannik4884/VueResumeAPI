@@ -37,3 +37,4 @@ symfony server:start
 | /api/cv{id}                | Error            | Get CV by id |
 | /api/cv/add                | Create new CV    | Error        |
 | /api/cv/{id}/status/update | Update CV status | Error        |
+| /api/cv/{id}/edit          | Update CV data   | Error        |
