@@ -7,6 +7,7 @@
         "php": ">=7.2.5",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "ext-mongodb": "*",
         "doctrine/annotations": "^1.0",
         "friendsofsymfony/rest-bundle": "^3.0",
         "mongodb/mongodb": "^1.4",
@@ -18,8 +19,7 @@
         "symfony/property-access": "5.2.*",
         "symfony/property-info": "5.2.*",
         "symfony/serializer": "5.2.*",
-        "symfony/yaml": "5.2.*",
-        "ext-mongodb": "*"
+        "symfony/yaml": "5.2.*"
     },
     "require-dev": {
         "symfony/debug-bundle": "5.2.*",

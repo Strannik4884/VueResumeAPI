@@ -170,14 +170,12 @@ class ResumeController extends AbstractFOSRestController
             $result = $collection->insertOne($request->toArray());
             return $this->json([
                 'id' => $result->getInsertedId()->__toString()
-            ],
-                201);
+            ], 201);
         } catch (\Exception $exception) {
             return $this->json([
                 'code' => 400,
                 'message' => $exception->getMessage()
-            ],
-                400);
+            ], 400);
         }
     }
 }
