@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Resume;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use MongoDB\Client as DB;
@@ -18,13 +19,14 @@ class ResumeController extends AbstractFOSRestController
     public function getAllCVs(): Response
     {
         $client = new DB($this->getParameter('app.db_url'));
+        // get all items from database
         $cursor = $client->selectCollection($this->getParameter('app.db_name'), $this->getParameter('app.db_collection'))->find();
         $items = $cursor->toArray();
+        // set id field
         foreach ($items as $item) {
             $item['id'] = $item['_id']->__toString();
             unset($item['_id']);
         }
-
         return $this->json($items);
     }
 
@@ -37,11 +39,34 @@ class ResumeController extends AbstractFOSRestController
     {
         $client = new DB($this->getParameter('app.db_url'));
         $collection = $client->selectCollection($this->getParameter('app.db_name'), $this->getParameter('app.db_collection'));
-        $item = $collection->findOne(array('_id' => new ObjectId($id)));
-        $item['id'] = $item['_id']->__toString();
-        unset($item['_id']);
-
-        return $this->json($item);
+        try
+        {
+            // get item by id
+            $item = $collection->findOne(array('_id' => new ObjectId($id)));
+            // if item found
+            if(isset($item))
+            {
+                $item['id'] = $item['_id']->__toString();
+                unset($item['_id']);
+                return $this->json($item);
+            }
+            else
+            {
+                return $this->json([
+                    'code' => 404,
+                    'message' => 'Resume with id ' . $id . ' not found'
+                ],
+                404);
+            }
+        }
+        catch (\Exception $exception)
+        {
+            return $this->json([
+                'code' => 400,
+                'message' => 'Incorrect resume id'
+            ],
+            400);
+        }
     }
 
     /**
@@ -52,27 +77,54 @@ class ResumeController extends AbstractFOSRestController
      */
     public function changeCVStatus(string $id, Request $request): Response
     {
-        $correctStatuses = array('Новый', 'Назначено собеседование', 'Принят', 'Отказ');
-        $newStatusRequest = $request->toArray();
-        if(in_array($newStatusRequest['new_status'], $correctStatuses, true)){
+        $newStatus = $request->toArray()['new_status'];
+        if(Resume::validateNewStatus($newStatus))
+        {
             $client = new DB($this->getParameter('app.db_url'));
             $collection = $client->selectCollection($this->getParameter('app.db_name'), $this->getParameter('app.db_collection'));
-            $result = $collection->updateOne(['_id' => new ObjectId($id)], ['$set' => ['resumeStatus' => $newStatusRequest['new_status']]]);
-            if($result->getModifiedCount() === 1){
-                return $this->json([
-                    'message' => 'Successful'
-                ]);
+            try {
+                // try to update item by id
+                $result = $collection->updateOne(['_id' => new ObjectId($id)], ['$set' => ['resumeStatus' => $newStatus]]);
+                // if item has been modified
+                if($result->getModifiedCount() === 1)
+                {
+                    return $this->json([
+                        'id' => $id,
+                        'message' => 'Resume status has been successfully updated'
+                    ],
+                    200);
+                }
+                // if item not found
+                else if($result->getMatchedCount() === 0)
+                {
+                    return $this->json([
+                        'code' => 404,
+                        'message' => 'Resume with id ' . $id . ' not found'
+                    ],
+                    404);
+                }
             }
-            else{
+            catch (\Exception $exception)
+            {
                 return $this->json([
-                    'message' => 'Error while updating document',
-                    'id' => $id
-                ]);
+                    'code' => 400,
+                    'message' => 'Incorrect resume id'
+                ],
+                400);
             }
         }
+        else{
+            return $this->json([
+                'code' => 400,
+                'message' => 'Incorrect new status'
+            ],
+            400);
+        }
         return $this->json([
-            'message' => 'Incorrect new status'
-        ]);
+            'id' => $id,
+            'message' => 'Nothing changed'
+        ],
+        200);
     }
 
     /**
@@ -84,10 +136,24 @@ class ResumeController extends AbstractFOSRestController
     {
         $client = new DB($this->getParameter('app.db_url'));
         $collection = $client->selectCollection($this->getParameter('app.db_name'), $this->getParameter('app.db_collection'));
-        $result = $collection->insertOne($request->toArray());
-
-        return $this->json([
-            'id' => $result->getInsertedId()->__toString()
-        ]);
+        try
+        {
+            // validate resume
+            Resume::validateCV($request->toArray());
+            // try to add resume
+            $result = $collection->insertOne($request->toArray());
+            return $this->json([
+                'id' => $result->getInsertedId()->__toString()
+            ],
+            201);
+        }
+        catch (\Exception $exception)
+        {
+            return $this->json([
+                'code' => 400,
+                'message' => $exception->getMessage()
+            ],
+            400);
+        }
     }
 }
