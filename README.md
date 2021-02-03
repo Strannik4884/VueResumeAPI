@@ -34,6 +34,6 @@ symfony server:start
 | -------------------------- | ---------------- | ------------ |
 | CRUD OP                    | CREATE/UPDATE    | READ         |
 | /api/cv                    | Error            | List of CVs  |
-| /api/cv{id}                | Error            | Get Cv by id |
+| /api/cv{id}                | Error            | Get CV by id |
 | /api/cv/add                | Create new CV    | Error        |
 | /api/cv/{id}/status/update | Update CV status | Error        |
