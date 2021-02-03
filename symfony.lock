@@ -26,6 +26,9 @@
             "ref": "cad41ef93d6150067ae2bb3c7fd729492dff6f0a"
         }
     },
+    "mongodb/mongodb": {
+        "version": "1.4.3"
+    },
     "nikic/php-parser": {
         "version": "v4.10.4"
     },

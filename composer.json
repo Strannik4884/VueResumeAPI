@@ -9,6 +9,7 @@
         "ext-iconv": "*",
         "doctrine/annotations": "^1.0",
         "friendsofsymfony/rest-bundle": "^3.0",
+        "mongodb/mongodb": "^1.4",
         "phpdocumentor/reflection-docblock": "^5.2",
         "symfony/console": "5.2.*",
         "symfony/dotenv": "5.2.*",
@@ -17,7 +18,8 @@
         "symfony/property-access": "5.2.*",
         "symfony/property-info": "5.2.*",
         "symfony/serializer": "5.2.*",
-        "symfony/yaml": "5.2.*"
+        "symfony/yaml": "5.2.*",
+        "ext-mongodb": "*"
     },
     "require-dev": {
         "symfony/debug-bundle": "5.2.*",
